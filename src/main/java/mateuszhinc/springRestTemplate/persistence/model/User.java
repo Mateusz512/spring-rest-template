@@ -81,4 +81,8 @@ public @Data class User implements UserDetails {
                         .collect(Collectors.toList()));
     }
 
+    public static User fromPrincipal(Principal principal){
+        OAuth2Authentication auth = (OAuth2Authentication) principal;
+        return (User) auth.getPrincipal();
+    }
 }
