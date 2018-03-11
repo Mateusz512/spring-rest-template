@@ -1,5 +1,6 @@
 package mateuszhinc.springRestTemplate.service;
 
+import mateuszhinc.springRestTemplate.dto.AuthorityDTO;
 import mateuszhinc.springRestTemplate.dto.UserDTO;
 import mateuszhinc.springRestTemplate.persistence.model.User;
 import mateuszhinc.springRestTemplate.persistence.repository.UserRepository;
@@ -41,6 +42,25 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user.toEntity(authorityService, passwordEncoder))
                 .toDTO();
     }
+
+    public boolean isValidUser(UserDTO dto) {
+        if (dto == null) {
+            return false;
+        }
+        if (dto.getUsername() == null || dto.getUsername().isEmpty() ||
+                dto.getPassword() == null || dto.getPassword().isEmpty()) {
+            return false;
+        }
+        if (dto.getAuthorities() == null || dto.getAuthorities().isEmpty() || dto.getAuthorities().size() > 2) {
+            return false;
+        }
+        for (AuthorityDTO auth : dto.getAuthorities()) {
+            if (!(auth.name.equals("ADMIN") || auth.name.equals("USER")))
+                return false;
+        }
+        return true;
+    }
+
 
     public void delete(long id) {
         userRepository.delete(id);
