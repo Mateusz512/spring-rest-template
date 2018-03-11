@@ -7,8 +7,10 @@ import mateuszhinc.springRestTemplate.dto.UserDTO;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 
 import javax.persistence.*;
+import java.security.Principal;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,16 +25,19 @@ public @Data class User implements UserDetails {
     @JoinTable(name = "users_authorities",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
     List<Authority> authorities;
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "userSequence")
     @SequenceGenerator(name = "userSequence", sequenceName = "userSequence", initialValue = 10)
     @Column(nullable = false, updatable = false)
     private Long id;
+
     @Column(nullable = false, unique = true)
     private String username;
-    //    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+
     @Column(nullable = false)
     private String password;
+
     @Column(nullable = false)
     private boolean enabled;
 
