@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Table(name = "users")
 public @Data class User implements UserDetails {
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(name = "users_authorities",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
     List<Authority> authorities;
@@ -80,7 +80,7 @@ public @Data class User implements UserDetails {
     }
 
     public UserDTO toDTO() {
-        return new UserDTO(username, password,
+        return new UserDTO(id,username, password,
                 authorities.stream()
                         .map(Authority::toDTO)
                         .collect(Collectors.toList()));

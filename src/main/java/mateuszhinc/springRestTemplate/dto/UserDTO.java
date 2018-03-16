@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 public @Data class UserDTO {
+    private Long id;
     private String username;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
@@ -25,7 +26,7 @@ public @Data class UserDTO {
                         .stream()
                         .map(authorityDTO -> authorityDTO.name)
                         .collect(Collectors.toList())),
-                null,
+                id,
                 username,
                 passwordEncoder.encode(password),
                 true
