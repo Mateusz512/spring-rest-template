@@ -2,10 +2,7 @@ package mateuszhinc.springRestTemplate.service
 
 import mateuszhinc.springRestTemplate.dto.AuthorityDTO
 import mateuszhinc.springRestTemplate.dto.UserDTO
-import mateuszhinc.springRestTemplate.helpers.AppConst
-import org.assertj.core.util.Lists
 import spock.lang.Specification
-import spock.lang.Unroll
 
 import static mateuszhinc.springRestTemplate.helpers.AppConst.ROLE_ADMIN
 import static mateuszhinc.springRestTemplate.helpers.AppConst.ROLE_USER
@@ -21,7 +18,7 @@ class UserServiceSpecification extends Specification {
                                                           [new AuthorityDTO("random"),
                                                            new AuthorityDTO(ROLE_USER)],
                                                           []]
-    UserService service = new UserService()
+    UserService service = new UserServiceImpl()
 
     def "Correctly validates UserDTO"() {
 
@@ -36,7 +33,7 @@ class UserServiceSpecification extends Specification {
         new UserDTO(null, "", "pwd", null)                      | false
         new UserDTO(null, "name", "pwd", null)                  | false
         new UserDTO(null, "name", "", null)                     | false
-        new UserDTO(null, "name", "pwd", Lists.emptyList())     | false
+        new UserDTO(null, "name", "pwd", [])     | false
         new UserDTO(null, "name", "pwd", invalidAuthorities[0]) | false
         new UserDTO(null, "name", "pwd", invalidAuthorities[1]) | false
         new UserDTO(null, "name", "pwd", invalidAuthorities[2]) | false
