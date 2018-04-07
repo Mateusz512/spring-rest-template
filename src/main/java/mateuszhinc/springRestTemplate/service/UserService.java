@@ -12,9 +12,9 @@ public interface UserService extends UserDetailsService {
     @Override
     UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 
-    List<UserDTO> getAllUsers();
+    Optional<List<UserDTO>> getAllUsers();
 
-    UserDTO createUser(UserDTO user);
+    Optional<UserDTO> createUser(UserDTO user);
 
     Optional<UserDTO> updateUser(long id, UserDTO userDTO);
 

@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -18,29 +18,29 @@ public class UserController {
     private UserService userService;
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<Collection<UserDTO>> getAllUsers() {
-        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        return userService.getAllUsers()
+                .map(users -> new ResponseEntity<>(users, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @RequestMapping(method = RequestMethod.PUT)
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO user){
-        return Optional.ofNullable(user)
-                .filter(userService::isValidUser)
-                .map(userService::createUser)
-                .map( u -> new ResponseEntity<>(u,HttpStatus.CREATED))
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO user) {
+        return userService.createUser(user)
+                .map(u -> new ResponseEntity<>(u, HttpStatus.CREATED))
                 .orElse(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
 
-    @RequestMapping(value = "/{id}",method = RequestMethod.DELETE)
-    public ResponseEntity deleteUser(@PathVariable long id){
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity deleteUser(@PathVariable long id) {
         userService.deleteUser(id);
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{id}",method = RequestMethod.PUT)
-    public ResponseEntity updateUser(@PathVariable long id, @RequestBody UserDTO received){
-        return userService.updateUser(id,received)
-                .map(user -> new ResponseEntity<>(user,HttpStatus.CREATED))
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    public ResponseEntity updateUser(@PathVariable long id, @RequestBody UserDTO received) {
+        return userService.updateUser(id, received)
+                .map(user -> new ResponseEntity<>(user, HttpStatus.CREATED))
                 .orElse(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
 

@@ -20,7 +20,7 @@ class UserServiceSpecification extends Specification {
                                                           []]
     UserService service = new UserServiceImpl()
 
-    def "Correctly validates UserDTO"() {
+    def "GIVEN UserDTO WHEN isValidUser THEN returns correct value"() {
 
         expect:
         service.isValidUser(dto) == isValid

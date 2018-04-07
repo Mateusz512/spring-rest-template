@@ -3,11 +3,11 @@ package mateuszhinc.springRestTemplate.service;
 import mateuszhinc.springRestTemplate.dto.AuthorityDTO;
 import mateuszhinc.springRestTemplate.dto.UserDTO;
 import mateuszhinc.springRestTemplate.helpers.AppConst;
+import mateuszhinc.springRestTemplate.helpers.Predicates;
 import mateuszhinc.springRestTemplate.persistence.model.User;
 import mateuszhinc.springRestTemplate.persistence.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,17 +34,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDTO> getAllUsers() {
-        return userRepository.findAll()
-                .stream()
-                .map(User::toDTO)
-                .collect(Collectors.toList());
+    public Optional<List<UserDTO>> getAllUsers() {
+        return Optional.ofNullable(userRepository.findAll())
+                .map(list -> list
+                        .stream()
+                        .map(User::toDTO)
+                        .collect(Collectors.toList()));
     }
 
     @Override
-    public UserDTO createUser(UserDTO user) {
-        return userRepository.save(user.toEntity(authorityService, passwordEncoder))
-                .toDTO();
+    public Optional<UserDTO> createUser(UserDTO user) {
+        return Optional.ofNullable(user)
+                .filter(this::isValidUser)
+                .map(dto -> userRepository.save(dto.toEntity(authorityService, passwordEncoder)))
+                .map(User::toDTO);
     }
 
     @Override
@@ -56,14 +59,15 @@ public class UserServiceImpl implements UserService {
                     Optional.ofNullable(userDTO.getPassword())
                             .ifPresent(user::setPassword);
                     Optional.ofNullable(userDTO.getAuthorities())
-                            .map(authorityDTOS -> {
+                            .filter(Predicates::isNotEmpty)
+                            .ifPresent(authorityDTOS -> {
                                         List<String> names = authorityDTOS.stream()
                                                 .map(AuthorityDTO::getName)
                                                 .collect(Collectors.toList());
-                                        return authorityService.findByNames(names);
+                                        authorityService.findByNames(names)
+                                                .ifPresent(user::setAuthorities);
                                     }
-                            )
-                            .ifPresent(user::setAuthorities);
+                            );
                     return userRepository.saveAndFlush(user);
                 })
                 .map(User::toDTO);
@@ -79,7 +83,7 @@ public class UserServiceImpl implements UserService {
                         .filter(password -> !password.isEmpty())
                         .isPresent())
                 .filter(dto -> Optional.ofNullable(dto.getAuthorities())
-                        .filter(authorities -> !authorities.isEmpty())
+                        .filter(Predicates::isNotEmpty)
                         .filter(authorities -> authorities.size() <= 2)
                         .filter(authorities -> authorities.stream()
                                 .allMatch(authority -> Optional.ofNullable(authority.getName())

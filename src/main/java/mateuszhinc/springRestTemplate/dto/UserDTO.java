@@ -8,12 +8,14 @@ import mateuszhinc.springRestTemplate.persistence.model.User;
 import mateuszhinc.springRestTemplate.service.AuthorityService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor
-public @Data class UserDTO {
+public @Data
+class UserDTO {
     private Long id;
     private String username;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -21,16 +23,17 @@ public @Data class UserDTO {
     private List<AuthorityDTO> authorities;
 
     public User toEntity(AuthorityService authorityService, PasswordEncoder passwordEncoder) {
-        return new User(authorityService.findByNames(
-                authorities
-                        .stream()
-                        .map(authorityDTO -> authorityDTO.name)
-                        .collect(Collectors.toList())),
+        return new User(
+                authorityService.findByNames(
+                        authorities
+                                .stream()
+                                .map(authorityDTO -> authorityDTO.name)
+                                .collect(Collectors.toList()))
+                        .orElse(Collections.emptyList()),
                 id,
                 username,
                 passwordEncoder.encode(password),
                 true
-
         );
     }
 }
